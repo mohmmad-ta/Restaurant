@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken')
 const User = require('./../models/userModel');
+const Delivery = require('./../models/deliveryModel');
+const Restaurant = require('./../models/restaurantModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require("../utils/appError");
 const {promisify} = require("util");
@@ -35,24 +37,70 @@ const createSendToken = (user, statusCode, res) => {
     });
 };
 // *** To create new user ***
-exports.signup = catchAsync(async (req, res, next)=>{
+exports.signupUser = catchAsync(async (req, res, next)=>{
     const user = await User.create({
         name: req.body.name,
-        userName: req.body.userName,
+        phone: req.body.phone,
         photo: req.body.photo,
-        email: req.body.email,
-        password: req.body.password,
-        passwordConfirm: req.body.passwordConfirm
+        location: req.body.location,
     });
     createSendToken(user, 201, res);
 })
+// *** To create new  Restaurant ***
+exports.signupRestaurant = catchAsync(async (req, res, next)=>{
+    const restaurant = await Restaurant.create({
+        name: req.body.name,
+        phone: req.body.phone,
+        photo: req.body.photo,
+    });
+    createSendToken(restaurant, 201, res);
+})
+// *** To create new Delivery ***
+exports.signupDelivery = catchAsync(async (req, res, next)=>{
+    const delivery = await Delivery.create({
+        name: req.body.name,
+        userID: req.body.userID,
+        password: req.body.password,
+        passwordConfirm: req.body.passwordConfirm,
+        phone: req.body.phone,
+    });
+    createSendToken(delivery, 201, res);
+})
 // *** To user login ***
-exports.login = catchAsync(async (req, res, next) => {
+exports.loginUser = catchAsync(async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
         return next(new AppError('Please provide email and password!', 400));
     }
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ phone }).select('+password');
+
+    if (!user ) {
+        return next(new AppError('Incorrect email or password', 401));
+    }
+
+    createSendToken(user, 200, res);
+});
+// *** To  login Restaurant ***
+exports.loginRestaurant = catchAsync(async (req, res, next) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return next(new AppError('Please provide email and password!', 400));
+    }
+    const user = await Restaurant.findOne({ phone }).select('+password');
+
+    if (!user) {
+        return next(new AppError('Incorrect email or password', 401));
+    }
+
+    createSendToken(user, 200, res);
+});
+// *** To login Delivery ***
+exports.loginDelivery = catchAsync(async (req, res, next) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return next(new AppError('Please provide email and password!', 400));
+    }
+    const user = await Delivery.findOne({ userID }).select('+password');
 
     if (!user || !(await user.correctPassword(password, user.password))) {
         return next(new AppError('Incorrect email or password', 401));

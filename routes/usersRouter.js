@@ -1,19 +1,24 @@
 const {Router} = require('express');
 const {getAllUsers, createUser, deleteUser, updateUser, updateMe, deleteMe, getUser, getMe, uploadUserPhoto} = require('./../controllers/userController');
-const {signup, login, logout, forgotPassword, resetPassword, updatePassword, protect, restrictTo} = require('./../controllers/authController');
+const {signupUser, loginDelivery, loginRestaurant, loginUser, signupDelivery, signupRestaurant, logout, forgotPassword, resetPassword, updatePassword, protect, restrictTo} = require('./../controllers/authController');
 
 
 const router = Router();
 //  Authentication Controller
-router.post('/signup', signup);
-router.post('/login', login);
+router.post('/signupUser', signupUser);
+router.post('/signupDelivery', signupDelivery);
+router.post('/signupRestaurant', signupRestaurant);
+router.post('/loginDelivery', loginDelivery);
+router.post('/loginRestaurant', loginRestaurant);
+router.post('/loginUser', loginUser);
 router.get('/logout', logout);
 
 router.patch('/updateMyPassword', protect, updatePassword);
-
-router.post('/forgotPassword', forgotPassword);
 router.patch('/resetPassword/:token', resetPassword);
+router.post('/forgotPassword', forgotPassword);
 
+// Delivery Controller
+// Restaurant Controller
 // User Controller
 router.use(protect);
 
