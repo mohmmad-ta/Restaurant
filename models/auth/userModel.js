@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const restaurantSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
         name: {
             type: String,
             required: [true, 'Please tell us your name!'],
@@ -15,26 +15,21 @@ const restaurantSchema = new mongoose.Schema({
             trim: true,
             required: [true, 'Please tell us your phone number!'],
         },
-        photo: {
-            type: String,
-            default: 'http://localhost:3000/public/images/users/user.png'
-        },
         role: {
             type: String,
-            enum: ['restaurant'],
-            default: 'restaurant'
+            enum: ['user'],
+            default: 'user'
         },
         active: {
             type: Boolean,
             default: true,
             select: false
         },
-        delivery: [
-            {
-                type: mongoose.Schema.ObjectId,
-                ref: 'Delivery'
-            }
-        ]
+        location: {
+            work: Object,
+            home: Object,
+            other: Object
+        }
     },
     {
         toJSON: { virtuals: true },
@@ -43,11 +38,11 @@ const restaurantSchema = new mongoose.Schema({
 )
 
 
-restaurantSchema.pre(/^find/, function (next) {
+userSchema.pre(/^find/, function (next) {
     this.find({active: {$ne: false}})
     next()
 })
 
 
-const Restaurant = mongoose.model('Restaurant', restaurantSchema);
-module.exports = Restaurant
+const User = mongoose.model('User', userSchema);
+module.exports = User

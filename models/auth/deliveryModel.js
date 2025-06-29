@@ -38,6 +38,10 @@ const deliverySchema = new mongoose.Schema({
         passwordChangedAt: Date,
         passwordResetToken: String,
         passwordResetExpires: Date,
+        restaurantId: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Restaurant'
+        },
         active: {
             type: Boolean,
             default: true,

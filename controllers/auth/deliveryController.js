@@ -1,16 +1,15 @@
-const Delivery = require('./../models/deliveryModel');
-const catchAsync = require('./../utils/catchAsync');
-const AppError = require('./../utils/appError');
-const factory = require('./handlerFactory');
+const Delivery = require('../../models/auth/deliveryModel');
+const catchAsync = require('../../utils/catchAsync');
+const AppError = require('../../utils/appError');
 const multer = require("multer");
 
 const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'public/images/users');
+        cb(null, 'public/images/delivery');
     },
     filename: (req, file, cb) => {
         const ext = file.mimetype.split('/')[1];
-        cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+        cb(null, `Delivery-${req.user.id}-${Date.now()}.${ext}`);
     }
 });
 const multerFilter = (req, file, cb) => {
@@ -35,13 +34,16 @@ const filterObj = (obj, ...allowedFields) => {
     return newObj;
 };
 
-exports.getMe = async (req, res, next) => {
+exports.getMeDelivery = async (req, res, next) => {
     req.params.id = req.user.id;
-    await Delivery.findById(req.params.id);
-    next();
+    const user = await Delivery.findById(req.params.id);
+    res.status(200).json({
+        status: 'success',
+        data: user
+    });
 };
 
-exports.updateMe = catchAsync(async (req, res, next) => {
+exports.updateMeDelivery = catchAsync(async (req, res, next) => {
     if (req.body.password || req.body.passwordConfirm) {
         return next(new AppError('This route is not for password updates. Please use /updateMyPassword.', 400));
     }
@@ -57,5 +59,14 @@ exports.updateMe = catchAsync(async (req, res, next) => {
         data: {
             user: updatedUser
         }
+    });
+});
+
+exports.deleteMeDelivery = catchAsync(async (req, res, next) => {
+    await Delivery.findByIdAndUpdate(req.user.id, { active: false });
+
+    res.status(204).json({
+        status: 'success',
+        data: null
     });
 });

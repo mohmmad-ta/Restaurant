@@ -15,13 +15,9 @@ const userSchema = new mongoose.Schema({
             trim: true,
             required: [true, 'Please tell us your phone number!'],
         },
-        photo: {
-            type: String,
-            default: 'http://localhost:3000/public/images/users/user.png'
-        },
         role: {
             type: String,
-            enum: ['user', 'admin'],
+            enum: ['user'],
             default: 'user'
         },
         active: {

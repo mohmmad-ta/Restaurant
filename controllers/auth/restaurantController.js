@@ -1,7 +1,7 @@
-const User = require('./../models/userModel');
-const catchAsync = require('./../utils/catchAsync');
-const AppError = require('./../utils/appError');
-const factory = require('./handlerFactory');
+const Restaurant = require('../../models/auth/restaurantModel');
+const Delivery = require('../../models/auth/deliveryModel');
+const catchAsync = require('../../utils/catchAsync');
+const AppError = require('../../utils/appError');
 const multer = require("multer");
 
 const multerStorage = multer.diskStorage({
@@ -35,19 +35,30 @@ const filterObj = (obj, ...allowedFields) => {
     return newObj;
 };
 
-exports.getMe = async (req, res, next) => {
+exports.getMeRestaurant = async (req, res, next) => {
     req.params.id = req.user.id;
-    await User.findById(req.params.id);
-    next();
+    const user = await Restaurant.findById(req.params.id).populate('delivery')
+    res.status(200).json({
+        status: 'success',
+        data: user
+    });
 };
 
-exports.updateMe = catchAsync(async (req, res, next) => {
-    if (req.body.password || req.body.passwordConfirm) {
-        return next(new AppError('This route is not for password updates. Please use /updateMyPassword.', 400));
-    }
-    const filteredBody = filterObj(req.body, 'name', 'email');
+exports.addDelivery = async (req, res, next) => {
+    console.log(req.delivery)
+    const updatedUser = await Delivery.find().populate('Restaurant');
+    res.status(200).json({
+        status: 'success',
+        data: {
+            user: updatedUser
+        }
+    });
+};
+
+exports.updateMeRestaurant = catchAsync(async (req, res, next) => {
+    const filteredBody = filterObj(req.body, 'name');
     if (req.file) filteredBody.photo = req.file.filename;
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+    const updatedUser = await Restaurant.findByIdAndUpdate(req.user.id, filteredBody, {
         new: true,
         runValidators: true
     });
@@ -60,8 +71,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.deleteMe = catchAsync(async (req, res, next) => {
-    await User.findByIdAndUpdate(req.user.id, { active: false });
+exports.deleteMeRestaurant = catchAsync(async (req, res, next) => {
+    await Restaurant.findByIdAndUpdate(req.user.id, { active: false });
 
     res.status(204).json({
         status: 'success',
@@ -69,16 +80,3 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
     });
 });
 
-exports.createUser = (req, res) => {
-    res.status(500).json({
-        status: 'error',
-        message: 'This route is not defined! Please use /signup instead'
-    });
-};
-
-exports.getUser = factory.getOne(User);
-exports.getAllUsers = factory.getAll(User);
-
-// Do NOT update passwords with this!
-exports.updateUser = factory.updateOne(User);
-exports.deleteUser = factory.deleteOne(User);
