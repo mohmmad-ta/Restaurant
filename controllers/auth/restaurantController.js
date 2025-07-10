@@ -44,16 +44,6 @@ exports.getMeRestaurant = async (req, res, next) => {
     });
 };
 
-exports.addDelivery = async (req, res, next) => {
-    console.log(req.delivery)
-    const updatedUser = await Delivery.find().populate('Restaurant');
-    res.status(200).json({
-        status: 'success',
-        data: {
-            user: updatedUser
-        }
-    });
-};
 
 exports.updateMeRestaurant = catchAsync(async (req, res, next) => {
     const filteredBody = filterObj(req.body, 'name');

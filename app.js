@@ -7,10 +7,11 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const hpp = require('hpp');
 
-
 require('dotenv').config();
 
 const usersRouter = require('./routes/usersRouter');
+const mealsRouter = require('./routes/mealsRouter');
+const ordersRouter = require('./routes/ordersRouter');
 
 const app = express();
 const api = process.env.API_URL
@@ -61,6 +62,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-app.use(`${api}`, usersRouter);
+app.use(`${api}/auth`, usersRouter);
+app.use(`${api}/meal`, mealsRouter);
+app.use(`${api}/order`, ordersRouter);
+
 
 module.exports = app;

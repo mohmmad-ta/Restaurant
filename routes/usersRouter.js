@@ -1,7 +1,7 @@
 const {Router} = require('express');
 const {deleteMe, getMe, updateMe} = require('../controllers/auth/userController');
 const { getMeDelivery, updateMeDelivery, deleteMeDelivery} = require('../controllers/auth/deliveryController');
-const { getMeRestaurant, deleteMeRestaurant, updateMeRestaurant, addDelivery, uploadUserPhoto} = require('../controllers/auth/restaurantController');
+const { getMeRestaurant, deleteMeRestaurant, updateMeRestaurant, uploadUserPhoto} = require('../controllers/auth/restaurantController');
 const { getMeAdmin, adminDeleteDelivery, adminDeleteRestaurant, adminDeleteUser, adminGetAllDelivery, adminGetAllRestaurant, adminUpdateRestaurant, adminGetAllUsers, adminGetDelivery, adminGetRestaurant, adminUpdateUser, adminUpdateDelivery, adminGetUser} = require('../controllers/auth/adminController');
 const {signupUser, loginAdmin, signupAdmin, loginDelivery, loginRestaurant, loginUser, signupDelivery, signupRestaurant, logout, forgotPassword, resetPassword, updatePassword, protect, restrictTo} = require('../controllers/auth/authController');
 const Admin = require('./../models/auth/adminModel');
