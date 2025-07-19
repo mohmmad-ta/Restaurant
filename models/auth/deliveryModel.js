@@ -19,6 +19,11 @@ const deliverySchema = new mongoose.Schema({
             enum: ['delivery'],
             default: 'delivery'
         },
+        phone: {
+            type: String,
+            required: true,
+            unique: true,
+        },
         password: {
             type: String,
             required: [true, 'Please provide a password'],

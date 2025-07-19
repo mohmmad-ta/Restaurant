@@ -5,9 +5,19 @@ class APIFeatures {
     }
     filter(){
         const queryObj = {...this.queryString}
-        const excludedField = ['name', 'fields', 'page', 'limit'];
+        const excludedField = ['name', 'fields', 'page', 'limit', 'sort'];
         excludedField.forEach(el=> delete queryObj[el])
         this.query.find(queryObj)
+
+        return this;
+    }
+    sort() {
+        if (this.queryString.sort) {
+            const sortBy = this.queryString.sort.split(',').join(' ');
+            this.query = this.query.sort(sortBy);
+        } else {
+            this.query = this.query.sort('-createdAt');
+        }
 
         return this;
     }

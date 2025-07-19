@@ -8,7 +8,7 @@ const app = require('../app');
 const debug = require('debug')('trees-api:server');
 const http = require('http');
 const mongoose = require("mongoose");
-
+const { initWebSocket } = require('../controllers/wsController');
 /**
  * Get port from environment and store in Express.
  */
@@ -39,7 +39,7 @@ server.listen(port, () => {
 server.on('error', onError);
 server.on('listening', onListening);
 
-
+initWebSocket(server);
 /**
  * Normalize a port into a number, string, or false.
  */

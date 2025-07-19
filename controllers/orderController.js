@@ -4,6 +4,7 @@ const factory = require('./handlerFactory');
 const AppError = require('./../utils/appError');
 const Delivery = require("../models/auth/deliveryModel");
 const Restaurant = require("../models/auth/restaurantModel");
+const {sendOrderToUser, broadcastOrder} = require("./wsController");
 
 exports.aliasTopTours = (req, res, next) => {
     req.query.limit = '5';
@@ -17,7 +18,10 @@ exports.createOrder = catchAsync(async (req, res, next)=>{
         userId: req.user.id,
         restaurantId: req.body.restaurantId,
         item: req.body.item,
+        location: req.body.location,
     });
+    broadcastOrder(order)
+    sendOrderToUser(req.body.restaurantId, order);
     res.status(200).json({
         status: 'success',
         data: {
@@ -47,7 +51,7 @@ exports.getOrderStatus = (id, status) => async (req, res, next) => {
         id = 'restaurantId'
         idParams = req.user.restaurantId.toHexString()
     }
-    const data = await Order.find({[id]: idParams , status: status});
+    const data = await Order.find({[id]: idParams , status: req.params.id});
     res.status(200).json({
         status: 'success',
         data: data
@@ -63,6 +67,8 @@ exports.changStatus = (id, status) => async (req, res, next) => {
     const data = await Order.findOneAndUpdate({[id]: idParams , _id: req.params.id}, {status: req.body.status}, {
         new: true,
     });
+    sendOrderToUser(req.body.restaurantId, data);
+
     res.status(200).json({
         status: 'success',
         data: data

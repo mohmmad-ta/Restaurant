@@ -21,7 +21,7 @@ const mealSchema = new mongoose.Schema(
         },
         image: {
             type: String,
-            // required: [true, 'A Meal must have a image']
+            required: [true, 'A Meal must have a image']
         },
         createdAt: {
             type: Date,

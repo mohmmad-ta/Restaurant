@@ -11,13 +11,24 @@ const restaurantSchema = new mongoose.Schema({
         },
         phone: {
             type: String,
-            unique: true,
             trim: true,
             required: [true, 'Please tell us your phone number!'],
         },
-        photo: {
+        discount: {
+            type: Number,
+            trim: true,
+            default: 0
+        },
+        ratingsAverage: {
+            type: Number,
+            default: 4.5,
+            min: [1, 'Rating must be above 1.0'],
+            max: [5, 'Rating must be below 5.0'],
+            set: val => Math.round(val * 10) / 10
+        },
+        image: {
             type: String,
-            default: 'http://localhost:3000/public/images/users/user.png'
+            default: 'http://localhost:7060/public/images/users/user.png'
         },
         role: {
             type: String,

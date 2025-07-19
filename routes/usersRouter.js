@@ -1,7 +1,7 @@
 const {Router} = require('express');
 const {deleteMe, getMe, updateMe} = require('../controllers/auth/userController');
-const { getMeDelivery, updateMeDelivery, deleteMeDelivery} = require('../controllers/auth/deliveryController');
-const { getMeRestaurant, deleteMeRestaurant, updateMeRestaurant, uploadUserPhoto} = require('../controllers/auth/restaurantController');
+const { getMeDelivery, updateMeDelivery, deleteMeDelivery, getAllMyDelivery} = require('../controllers/auth/deliveryController');
+const { getMeRestaurant, deleteMeRestaurant, updateMeRestaurant, resizeTourImages, uploadProductPhoto} = require('../controllers/auth/restaurantController');
 const { getMeAdmin, adminDeleteDelivery, adminDeleteRestaurant, adminDeleteUser, adminGetAllDelivery, adminGetAllRestaurant, adminUpdateRestaurant, adminGetAllUsers, adminGetDelivery, adminGetRestaurant, adminUpdateUser, adminUpdateDelivery, adminGetUser} = require('../controllers/auth/adminController');
 const {signupUser, loginAdmin, signupAdmin, loginDelivery, loginRestaurant, loginUser, signupDelivery, signupRestaurant, logout, forgotPassword, resetPassword, updatePassword, protect, restrictTo} = require('../controllers/auth/authController');
 const Admin = require('./../models/auth/adminModel');
@@ -37,10 +37,11 @@ router.delete('/user/deleteMe', protect(User), restrictTo('user'), deleteMe);
 
 // Restaurant Controller
 router.get('/restaurant/getMe', protect(Restaurant), restrictTo('restaurant'), getMeRestaurant);
-router.patch('/restaurant/updateMe', protect(Restaurant), restrictTo('restaurant'), updateMeRestaurant);
+router.patch('/restaurant/updateMe', protect(Restaurant), restrictTo('restaurant'), uploadProductPhoto, resizeTourImages, updateMeRestaurant);
 router.delete('/restaurant/deleteMe', protect(Restaurant), restrictTo('restaurant'), deleteMeRestaurant);
 router.post('/restaurant/createDelivery', protect(Restaurant), restrictTo('restaurant'), signupDelivery);
-router.delete('/restaurant/deleteMeDelivery', protect(Restaurant), restrictTo('restaurant'), deleteMeDelivery);
+router.get('/restaurant/getAllMyDelivery', protect(Restaurant), restrictTo('restaurant'), getAllMyDelivery);
+router.delete('/restaurant/deleteMeDelivery/:id', protect(Restaurant), restrictTo('restaurant'), deleteMeDelivery);
 
 
 router.use(protect(Admin), restrictTo('admin'));

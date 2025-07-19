@@ -54,34 +54,40 @@ exports.signupUser = catchAsync(async (req, res, next)=>{
 
     const token = process.env.WHATSAPP_TOKEN;
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    try {
-        const response = await axios.post(
-            `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
-            {
-                messaging_product: 'whatsapp',
-                to: `964${phone}`, 
-                type: "text",
-                text: { body: "Your OTP is 123456" }
-            },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-        const user = await User.create({
-            name: req.body.name,
-            phone: req.body.phone,
-            location: req.body.location,
-        });
-        res.json({ success: true, message_id: response.data.messages[0].id });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.response?.data || error.message,
-        });
-    }
+    // try {
+    //     const response = await axios.post(
+    //         `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
+    //         {
+    //             messaging_product: 'whatsapp',
+    //             to: `964${phone}`,
+    //             type: "text",
+    //             text: { body: "Your OTP is 123456" }
+    //         },
+    //         {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`,
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         }
+    //     );
+    //     const user = await User.create({
+    //         name: req.body.name,
+    //         phone: req.body.phone,
+    //         location: req.body.location,
+    //     });
+    //     res.json({ success: true, message_id: response.data.messages[0].id });
+    // } catch (error) {
+    //     res.status(500).json({
+    //         success: false,
+    //         error: error.response?.data || error.message,
+    //     });
+    // }
+    const user = await User.create({
+        name: req.body.name,
+        phone: req.body.phone,
+        location: req.body.location,
+    });
+    res.json({ success: true, user: user });
 
     // createSendToken(user, 201, res);
 })
@@ -117,7 +123,7 @@ exports.loginUser = catchAsync(async (req, res, next) => {
     if (!phone) {
         return next(new AppError('Please provide phone and password!', 400));
     }
-    const user = await User.findOne({ phone }).select('+password');
+    const user = await User.findOne({ phone });
 
     if (!user ) {
         return next(new AppError('Incorrect phone or password', 401));
@@ -131,7 +137,7 @@ exports.loginRestaurant = catchAsync(async (req, res, next) => {
     if (!phone ) {
         return next(new AppError('Please provide phone and password!', 400));
     }
-    const user = await Restaurant.findOne({ phone }).select('+password').populate('delivery')
+    const user = await Restaurant.findOne({ phone }).populate('delivery')
 
     if (!user) {
         return next(new AppError('Incorrect phone or password', 401));
