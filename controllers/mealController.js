@@ -22,6 +22,7 @@ exports.uploadProductPhoto = upload.fields([
     {name: 'image', maxCount: 1},
 ])
 exports.resizeTourImages = catchAsync(async (req, res, next) => {
+    console.log(req);
     if (!req.files.image) return next();
     // 1) image
     req.body.image = `${req.protocol}://${req.get('host')}/public/images/meals/${Date.now()}-${req.files.image.fieldname}.jpeg`;
@@ -33,14 +34,6 @@ exports.resizeTourImages = catchAsync(async (req, res, next) => {
     next();
 });
 
-
-
-exports.aliasTop = (req, res, next) => {
-    req.query.limit = '5';
-    req.query.sort = '-ratingsAverage';
-    req.query.fields = 'name,price,ratingsAverage';
-    next();
-};
 
 exports.getAllRestaurant = factory.getAll(Restaurant);
 exports.getMeal = factory.getOne(Meal);

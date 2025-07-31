@@ -42,7 +42,9 @@ exports.getOne = Model =>
 
 exports.getAll = Model =>
   catchAsync(async (req, res, next) => {
-    let filter = {};
+      console.log("🔍 Final Query Params:", req);
+
+      let filter = {};
     if (req.params.productId) filter = { product: req.params.productId };
 
     const features = new APIFeatures(Model.find(filter), req.query)

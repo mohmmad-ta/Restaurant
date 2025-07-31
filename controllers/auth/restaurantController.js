@@ -68,11 +68,12 @@ exports.updateMeRestaurant = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteMeRestaurant = catchAsync(async (req, res, next) => {
-    await Restaurant.findByIdAndUpdate(req.user.id, { active: false });
+    await Restaurant.findByIdAndUpdate(req.user.id, { deleted: true });
 
     res.status(204).json({
         status: 'success',
         data: null
     });
 });
+
 

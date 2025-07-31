@@ -48,55 +48,77 @@ exports.signupAdmin = catchAsync(async (req, res, next)=>{
     createSendToken(user, 201, res);
 })
 // *** To create new user ***
-exports.signupUser = catchAsync(async (req, res, next)=>{
-    const { phone, otp } = req.body;
-    const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
+exports.signupUser = catchAsync(async (req, res, next) => {
+    const { phone, name } = req.body;
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     const token = process.env.WHATSAPP_TOKEN;
     const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    // try {
-    //     const response = await axios.post(
-    //         `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
-    //         {
-    //             messaging_product: 'whatsapp',
-    //             to: `964${phone}`,
-    //             type: "text",
-    //             text: { body: "Your OTP is 123456" }
-    //         },
-    //         {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`,
-    //                 'Content-Type': 'application/json'
-    //             }
-    //         }
-    //     );
-    //     const user = await User.create({
-    //         name: req.body.name,
-    //         phone: req.body.phone,
-    //         location: req.body.location,
-    //     });
-    //     res.json({ success: true, message_id: response.data.messages[0].id });
-    // } catch (error) {
-    //     res.status(500).json({
-    //         success: false,
-    //         error: error.response?.data || error.message,
-    //     });
-    // }
-    const user = await User.create({
-        name: req.body.name,
-        phone: req.body.phone,
-        location: req.body.location,
-    });
-    res.json({ success: true, user: user });
+    try {
+        // Send WhatsApp message
+        // await axios.post(
+        //     `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
+        //     {
+        //         messaging_product: 'whatsapp',
+        //         to: `964${phone}`,
+        //         type: "template",
+        //         template: {
+        //             name: "auth",
+        //             language: { code: "en" },
+        //             components: [
+        //                 {
+        //                     type: "body",
+        //                     parameters: [
+        //                         {
+        //                             type: "text",
+        //                             text: otp, // for {{1}} in body
+        //                         },
+        //                     ],
+        //                 },
+        //                 {
+        //                     type: "button",
+        //                     sub_type: "url",
+        //                     index: "0", // First button in the template
+        //                     parameters: [
+        //                         {
+        //                             type: "text",
+        //                             text: `verify/${otp}` // this replaces {{1}} in the button URL
+        //                         }
+        //                     ]
+        //                 }
+        //             ]
+        //         }
+        //     },
+        //     {
+        //         headers: {
+        //             Authorization: `Bearer ${token}`,
+        //             'Content-Type': 'application/json'
+        //         }
+        //     }
+        // );
 
-    // createSendToken(user, 201, res);
-})
+        // Create user in DB
+        const user = await User.create({
+            name:name,
+            phone:phone,
+            password: req.body.password,
+            passwordConfirm: req.body.password,
+        });
+
+        res.json({ success: true, user:user });
+    } catch (error) {
+        console.error("WhatsApp or DB error:", error.response?.data || error.message);
+        res.status(500).json({ error: "Failed to register user or send OTP" });
+    }
+});
+
 // *** To create new  Restaurant ***
 exports.signupRestaurant = catchAsync(async (req, res, next)=>{
     const restaurant = await Restaurant.create({
         name: req.body.name,
         phone: req.body.phone,
-        photo: req.body.photo,
+        password: req.body.password,
+        passwordConfirm: req.body.password,
     });
     createSendToken(restaurant, 201, res);
 })
@@ -119,11 +141,15 @@ exports.signupDelivery = catchAsync(async (req, res, next)=>{
 })
 // *** To user login ***
 exports.loginUser = catchAsync(async (req, res, next) => {
-    const { phone } = req.body;
-    if (!phone) {
+    const { phone, password } = req.body;
+    if (!phone || !password) {
         return next(new AppError('Please provide phone and password!', 400));
     }
-    const user = await User.findOne({ phone });
+    const user = await User.findOne({ phone }).select('+password');
+
+    if (!user || !(await user.correctPassword(password, user.password))) {
+        return next(new AppError('Incorrect userID or password', 401));
+    }
 
     if (!user ) {
         return next(new AppError('Incorrect phone or password', 401));
@@ -133,14 +159,14 @@ exports.loginUser = catchAsync(async (req, res, next) => {
 });
 // *** To  login Restaurant ***
 exports.loginRestaurant = catchAsync(async (req, res, next) => {
-    const { phone } = req.body;
+    const { phone, password } = req.body;
     if (!phone ) {
         return next(new AppError('Please provide phone and password!', 400));
     }
-    const user = await Restaurant.findOne({ phone }).populate('delivery')
+    const user = await Restaurant.findOne({ phone }).populate('delivery').select('+password');
 
-    if (!user) {
-        return next(new AppError('Incorrect phone or password', 401));
+    if (!user || !(await user.correctPassword(password, user.password))) {
+        return next(new AppError('Incorrect userID or password', 401));
     }
 
     createSendToken(user, 200, res);

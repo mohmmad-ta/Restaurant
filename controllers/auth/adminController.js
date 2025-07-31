@@ -32,7 +32,13 @@ exports.adminUpdateDelivery = factory.updateOne(Delivery);
 exports.adminDeleteDelivery = factory.deleteOne(Delivery);
 
 // ### === CRUD Restaurant === ###
-exports.adminGetRestaurant = factory.getOne(Restaurant);
+exports.adminGetRestaurant = async (req, res, next) => {
+    const user = await Restaurant.findById(req.params.id).populate('delivery').populate('meal')
+    res.status(200).json({
+        status: 'success',
+        data: user
+    });
+};
 exports.adminGetAllRestaurant = factory.getAll(Restaurant);
 
 // Do NOT update passwords with this!

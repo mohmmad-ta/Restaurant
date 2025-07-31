@@ -49,11 +49,11 @@ function broadcastOrder(order) {
   });
 }
 
-function sendOrderToUser(userId, order) {
+function sendOrderToUser(userId, order, type) {
   const ws = userSockets.get(userId);
   console.log(`Sending order to user ${userId}`, order);
   if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ type: 'new-order', data: order }));
+    ws.send(JSON.stringify({ type: type, data: order }));
   }
 }
 

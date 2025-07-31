@@ -17,11 +17,14 @@ exports.createOrder = catchAsync(async (req, res, next)=>{
     const order = await Order.create({
         userId: req.user.id,
         restaurantId: req.body.restaurantId,
+        deliveryId: req.body.restaurantId,
         item: req.body.item,
         location: req.body.location,
     });
-    broadcastOrder(order)
-    sendOrderToUser(req.body.restaurantId, order);
+
+    sendOrderToUser(req.user.id, order, "create-order");
+    sendOrderToUser(req.body.restaurantId, order, "create-order");
+
     res.status(200).json({
         status: 'success',
         data: {
@@ -45,32 +48,69 @@ exports.getAllMyOrder = (id) => async (req, res, next) => {
     });
 };
 
-exports.getOrderStatus = (id, status) => async (req, res, next) => {
+exports.getOrderStatus = (id) => async (req, res, next) => {
     let idParams = req.user.id;
-    if (id === "deliveryId" && status === 2) {
-        id = 'restaurantId'
+    let access = id;
+    if (access === "deliveryId" && req.params.id === "2") {
+        access = 'restaurantId'
         idParams = req.user.restaurantId.toHexString()
     }
-    const data = await Order.find({[id]: idParams , status: req.params.id});
+    const data = await Order.find({[access]: idParams , status: req.params.id});
     res.status(200).json({
         status: 'success',
         data: data
     });
 };
 
-exports.changStatus = (id, status) => async (req, res, next) => {
+exports.changStatus = (id) => async (req, res, next) => {
     let idParams = req.user.id;
-    if (id === "deliveryId" && status === 2) {
-        id = 'restaurantId'
-        idParams = req.user.restaurantId.toHexString()
+    let access = id;
+    if (id === "deliveryId" && req.body.lastState === "2") {
+        access = 'restaurantId';
+        idParams = req.user.restaurantId.toHexString();
     }
-    const data = await Order.findOneAndUpdate({[id]: idParams , _id: req.params.id}, {status: req.body.status}, {
-        new: true,
-    });
-    sendOrderToUser(req.body.restaurantId, data);
+
+    const filter = { [access]: idParams, _id: req.body.id };
+    const update = { status: req.body.status };
+    if (req.body.lastState === "2") {
+        update.deliveryId = req.user.id;
+    }
+
+    const data = await Order.findOneAndUpdate(filter, update, { new: true });
+
+    if (!data) {
+        return res.status(404).json({ status: 'fail', message: 'Order not found' });
+    }
+
+    const restaurantId = data.restaurantId.id;
+    const deli = await Restaurant.findById(restaurantId).populate('delivery');
+
+    // Send to all delivery users
+    if (data.status === "2") {
+        if (deli?.delivery?.length) {
+            deli.delivery.forEach((item) => {
+                sendOrderToUser(item._id.toString(), data, `change-status-to-deli`);
+            });
+        }
+    }else if (data.status === "3"){
+        if (deli?.delivery?.length) {
+            deli.delivery.forEach((item) => {
+                sendOrderToUser(item._id.toString(), data, `change-status-to-delete-from-deli`);
+            });
+        }
+        sendOrderToUser(data.deliveryId, data, `change-status-to-deli-forMe-3`);
+
+    }else if (data.status === "4"){
+        sendOrderToUser(data.deliveryId, data, `change-status-to-deli-forMe-4`);
+    }
+    // Send to restaurant
+    sendOrderToUser(restaurantId, data, `change-status-to-rest`);
+
+    // Send to customer
+    sendOrderToUser(data.userId.id, data, `change-status-to-user`);
 
     res.status(200).json({
         status: 'success',
-        data: data
+        data
     });
 };
