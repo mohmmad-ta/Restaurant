@@ -34,6 +34,8 @@ router.post('/delivery/forgotPassword', forgotPassword);
 router.get('/user/me', protect(User), restrictTo('user'), getMe);
 router.patch('/user/updateMe', protect(User), restrictTo('user'), updateMe);
 router.delete('/user/deleteMe', protect(User), restrictTo('user'), deleteMe);
+router.patch('/user/updateMyPassword', protect(User), restrictTo('user'), updatePassword);
+
 
 // Restaurant Controller
 router.get('/restaurant/getMe', protect(Restaurant), restrictTo('restaurant'), getMeRestaurant);

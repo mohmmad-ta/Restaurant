@@ -49,67 +49,74 @@ exports.signupAdmin = catchAsync(async (req, res, next)=>{
 })
 // *** To create new user ***
 exports.signupUser = catchAsync(async (req, res, next) => {
-    const { phone, name } = req.body;
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const token = process.env.WHATSAPP_TOKEN;
-    const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    try {
-        // Send WhatsApp message
-        // await axios.post(
-        //     `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
-        //     {
-        //         messaging_product: 'whatsapp',
-        //         to: `964${phone}`,
-        //         type: "template",
-        //         template: {
-        //             name: "auth",
-        //             language: { code: "en" },
-        //             components: [
-        //                 {
-        //                     type: "body",
-        //                     parameters: [
-        //                         {
-        //                             type: "text",
-        //                             text: otp, // for {{1}} in body
-        //                         },
-        //                     ],
-        //                 },
-        //                 {
-        //                     type: "button",
-        //                     sub_type: "url",
-        //                     index: "0", // First button in the template
-        //                     parameters: [
-        //                         {
-        //                             type: "text",
-        //                             text: `verify/${otp}` // this replaces {{1}} in the button URL
-        //                         }
-        //                     ]
-        //                 }
-        //             ]
-        //         }
-        //     },
-        //     {
-        //         headers: {
-        //             Authorization: `Bearer ${token}`,
-        //             'Content-Type': 'application/json'
-        //         }
-        //     }
-        // );
-
-        // Create user in DB
-        const user = await User.create({
-            name:name,
-            phone:phone,
-            password: req.body.password,
-            passwordConfirm: req.body.password,
-        });
-
-        res.json({ success: true, user:user });
-    } catch (error) {
-        console.error("WhatsApp or DB error:", error.response?.data || error.message);
-        res.status(500).json({ error: "Failed to register user or send OTP" });
-    }
+    const { phone, name, password } = req.body;
+    const user = await User.create({
+        name:name,
+        phone:phone,
+        password: password,
+        passwordConfirm: password,
+    });
+    createSendToken(user, 201, res);
+    // const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    //
+    // const token = process.env.WHATSAPP_TOKEN;
+    // const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+    // try {
+    //     // Send WhatsApp message
+    //     await axios.post(
+    //         `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
+    //         {
+    //             messaging_product: 'whatsapp',
+    //             to: `964${phone}`,
+    //             type: "template",
+    //             template: {
+    //                 name: "auth",
+    //                 language: { code: "en" },
+    //                 components: [
+    //                     {
+    //                         type: "body",
+    //                         parameters: [
+    //                             {
+    //                                 type: "text",
+    //                                 text: otp, // for {{1}} in body
+    //                             },
+    //                         ],
+    //                     },
+    //                     {
+    //                         type: "button",
+    //                         sub_type: "url",
+    //                         index: "0", // First button in the template
+    //                         parameters: [
+    //                             {
+    //                                 type: "text",
+    //                                 text: `verify/${otp}` // this replaces {{1}} in the button URL
+    //                             }
+    //                         ]
+    //                     }
+    //                 ]
+    //             }
+    //         },
+    //         {
+    //             headers: {
+    //                 Authorization: `Bearer ${token}`,
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         }
+    //     );
+    //
+    //     // Create user in DB
+    //     const user = await User.create({
+    //         name:name,
+    //         phone:phone,
+    //         password: password,
+    //         passwordConfirm: password,
+    //     });
+    //
+    //     res.json({ success: true, user:user });
+    // } catch (error) {
+    //     console.error("WhatsApp or DB error:", error.response?.data || error.message);
+    //     res.status(500).json({ error: "Failed to register user or send OTP" });
+    // }
 });
 
 // *** To create new  Restaurant ***
@@ -304,7 +311,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
         return next(new AppError('Your current password is wrong.', 401));
     }
     user.password = req.body.password;
-    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordConfirm = req.body.password;
     await user.save();
     createSendToken(user, 200, res);
 });

@@ -28,14 +28,32 @@ const userSchema = new mongoose.Schema({
             select: false
         },
         location: {
-            work: Object,
-            home: Object,
-            other: Object
+            work: {
+                type: Object,
+                default: {
+                    latitude: 33.7550,
+                    longitude: 44.6340,
+                }
+            },
+            home: {
+                type: Object,
+                default: {
+                    latitude: 33.7550,
+                    longitude: 44.6340,
+                }
+            },
+            other: {
+                type: Object,
+                default: {
+                    latitude: 33.7550,
+                    longitude: 44.6340,
+                }
+            }
         },
         password: {
             type: String,
             required: [true, 'Please provide a password'],
-            minlength: 8,
+            minlength: 6,
             select: false
         },
         passwordConfirm: {
