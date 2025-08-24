@@ -6,7 +6,8 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const hpp = require('hpp');
-
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
 require('dotenv').config();
 
 const usersRouter = require('./routes/usersRouter');
@@ -67,4 +68,6 @@ app.use(`${api}/meal`, mealsRouter);
 app.use(`${api}/order`, ordersRouter);
 
 
+
+app.use(globalErrorHandler);
 module.exports = app;

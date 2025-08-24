@@ -7,18 +7,18 @@ const orderSchema = new mongoose.Schema(
                 Id: {
                     type: mongoose.Schema.ObjectId,
                     ref: 'Meal',
-                    required: true
+                    required: [true, 'يرجى إدخال رقم الوجبة'],
                 },
                 count: {
                     type: Number,
-                    required: true
+                    required: [true, 'يرجى إدخال عدد الوجبات'],
                 }
             }
         ],
         userId: {
             type: mongoose.Schema.ObjectId,
             ref: 'User',
-            required: true
+            required: [true, 'يرجى إدخال رقم المستخدم'],
         },
         deliveryId: {
             type: mongoose.Schema.ObjectId,
@@ -27,11 +27,11 @@ const orderSchema = new mongoose.Schema(
         restaurantId: {
             type: mongoose.Schema.ObjectId,
             ref: 'Restaurant',
-            required: true
+            required: [true, 'يرجى إدخال رقم المطعم'],
         },
         location: {
             type: Object,
-            required: true,
+            required: [true, 'يرجى إدخال الموقع'],
         },
         createdAt: {
             type: Date,
@@ -54,6 +54,7 @@ const orderSchema = new mongoose.Schema(
     }
 );
 
+
 orderSchema.pre(/^find/, function(next) {
     this.populate({
         path: 'restaurantId',
@@ -63,7 +64,7 @@ orderSchema.pre(/^find/, function(next) {
         select: '-__v -role'
     }).populate({
         path: 'item.Id',
-        select: '-__v -restaurantId -role'
+        select: '-__v -role'
     });
 
     next();

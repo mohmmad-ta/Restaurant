@@ -16,6 +16,7 @@ const signToken = (id)=>{
         expiresIn: process.env.JWT_EXPIRES_IN
     })
 }
+
 // *** jwt token ***
 const createSendToken = (user, statusCode, res) => {
     const token = signToken(user._id);
@@ -38,6 +39,7 @@ const createSendToken = (user, statusCode, res) => {
         }
     });
 };
+
 // *** To create new admin ***
 exports.signupAdmin = catchAsync(async (req, res, next)=>{
     const user = await Admin.create({
@@ -47,6 +49,7 @@ exports.signupAdmin = catchAsync(async (req, res, next)=>{
     });
     createSendToken(user, 201, res);
 })
+
 // *** To create new user ***
 exports.signupUser = catchAsync(async (req, res, next) => {
     const { phone, name, password } = req.body;
@@ -57,69 +60,9 @@ exports.signupUser = catchAsync(async (req, res, next) => {
         passwordConfirm: password,
     });
     createSendToken(user, 201, res);
-    // const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    //
-    // const token = process.env.WHATSAPP_TOKEN;
-    // const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
-    // try {
-    //     // Send WhatsApp message
-    //     await axios.post(
-    //         `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
-    //         {
-    //             messaging_product: 'whatsapp',
-    //             to: `964${phone}`,
-    //             type: "template",
-    //             template: {
-    //                 name: "auth",
-    //                 language: { code: "en" },
-    //                 components: [
-    //                     {
-    //                         type: "body",
-    //                         parameters: [
-    //                             {
-    //                                 type: "text",
-    //                                 text: otp, // for {{1}} in body
-    //                             },
-    //                         ],
-    //                     },
-    //                     {
-    //                         type: "button",
-    //                         sub_type: "url",
-    //                         index: "0", // First button in the template
-    //                         parameters: [
-    //                             {
-    //                                 type: "text",
-    //                                 text: `verify/${otp}` // this replaces {{1}} in the button URL
-    //                             }
-    //                         ]
-    //                     }
-    //                 ]
-    //             }
-    //         },
-    //         {
-    //             headers: {
-    //                 Authorization: `Bearer ${token}`,
-    //                 'Content-Type': 'application/json'
-    //             }
-    //         }
-    //     );
-    //
-    //     // Create user in DB
-    //     const user = await User.create({
-    //         name:name,
-    //         phone:phone,
-    //         password: password,
-    //         passwordConfirm: password,
-    //     });
-    //
-    //     res.json({ success: true, user:user });
-    // } catch (error) {
-    //     console.error("WhatsApp or DB error:", error.response?.data || error.message);
-    //     res.status(500).json({ error: "Failed to register user or send OTP" });
-    // }
 });
 
-// *** To create new  Restaurant ***
+// *** To create new Restaurant ***
 exports.signupRestaurant = catchAsync(async (req, res, next)=>{
     const restaurant = await Restaurant.create({
         name: req.body.name,
@@ -129,6 +72,7 @@ exports.signupRestaurant = catchAsync(async (req, res, next)=>{
     });
     createSendToken(restaurant, 201, res);
 })
+
 // *** To create new Delivery ***
 exports.signupDelivery = catchAsync(async (req, res, next)=>{
     const delivery = await Delivery.create({
@@ -146,89 +90,88 @@ exports.signupDelivery = catchAsync(async (req, res, next)=>{
         }
     });
 })
+
 // *** To user login ***
 exports.loginUser = catchAsync(async (req, res, next) => {
     const { phone, password } = req.body;
     if (!phone || !password) {
-        return next(new AppError('Please provide phone and password!', 400));
+        return next(new AppError('يرجى إدخال رقم الهاتف وكلمة المرور!', 400));
     }
     const user = await User.findOne({ phone }).select('+password');
 
     if (!user || !(await user.correctPassword(password, user.password))) {
-        return next(new AppError('Incorrect userID or password', 401));
-    }
-
-    if (!user ) {
-        return next(new AppError('Incorrect phone or password', 401));
+        return next(new AppError('رقم الهاتف أو كلمة المرور غير صحيحة!', 401));
     }
 
     createSendToken(user, 200, res);
 });
-// *** To  login Restaurant ***
+
+// *** To login Restaurant ***
 exports.loginRestaurant = catchAsync(async (req, res, next) => {
     const { phone, password } = req.body;
-    if (!phone ) {
-        return next(new AppError('Please provide phone and password!', 400));
+    if (!phone || !password) {
+        return next(new AppError('يرجى إدخال رقم الهاتف وكلمة المرور!', 400));
     }
     const user = await Restaurant.findOne({ phone }).populate('delivery').select('+password');
 
     if (!user || !(await user.correctPassword(password, user.password))) {
-        return next(new AppError('Incorrect userID or password', 401));
+        return next(new AppError('رقم الهاتف أو كلمة المرور غير صحيحة!', 401));
     }
 
     createSendToken(user, 200, res);
 });
+
 // *** To login Delivery ***
 exports.loginDelivery = catchAsync(async (req, res, next) => {
     const { userID, password } = req.body;
     if (!userID || !password) {
-        return next(new AppError('Please provide userID and password!', 400));
+        return next(new AppError('يرجى إدخال اسم المستخدم وكلمة المرور!', 400));
     }
     const user = await Delivery.findOne({ userID }).select('+password');
 
     if (!user || !(await user.correctPassword(password, user.password))) {
-        return next(new AppError('Incorrect userID or password', 401));
+        return next(new AppError('اسم المستخدم أو كلمة المرور غير صحيحة!', 401));
     }
 
     createSendToken(user, 200, res);
 });
+
 // *** To login Admin ***
 exports.loginAdmin = catchAsync(async (req, res, next) => {
     const { userID, password } = req.body;
     if (!userID || !password) {
-        return next(new AppError('Please provide userID and password!', 400));
+        return next(new AppError('يرجى إدخال اسم المستخدم وكلمة المرور!', 400));
     }
     const user = await Admin.findOne({ userID }).select('+password');
 
     if (!user || !(await user.correctPassword(password, user.password))) {
-        return next(new AppError('Incorrect userID or password', 401));
+        return next(new AppError('اسم المستخدم أو كلمة المرور غير صحيحة!', 401));
     }
 
     createSendToken(user, 200, res);
 });
+
 // *** To Protecting Routes ***
 exports.protect = Model => catchAsync(async (req, res, next) => {
-    console.log(Model);
     let token ;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         token = req.headers.authorization.split(' ')[1];
     } else if (req.cookies.jwt) {
         token = req.cookies.jwt;
-
     }
     if (!token) {
-        return next(new AppError('You are not logged in! Please log in to get access.', 401));
-
+        return next(new AppError('أنت غير مسجل الدخول! يرجى تسجيل الدخول للوصول.', 401));
     }
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
     const currentUser = await Model.findById(decoded.id);
     if (!currentUser) {
-        return next(new AppError('The user belonging to this token does no longer exist.', 401));
+        return next(new AppError('المستخدم المرتبط بهذا التوكن لم يعد موجودًا.', 401));
     }
     req.user = currentUser;
     res.locals.user = currentUser;
     next();
 });
+
 // *** To user logout ***
 exports.logout = catchAsync(async (req, res, next)=>{
     res.cookie('jwt', null);
@@ -237,11 +180,12 @@ exports.logout = catchAsync(async (req, res, next)=>{
         status: 'success',
     })
 })
-// ***  User authorization ***
+
+// *** User authorization ***
 exports.restrictTo = (...roles)=>{
     return (req, res, next)=>{
         if (!roles.includes(req.user.role)){
-            return next(new AppError('You do not have permission to perform this action', 403));
+            return next(new AppError('ليس لديك الصلاحية لتنفيذ هذا الإجراء', 403));
         }
         next()
     }
@@ -251,32 +195,32 @@ exports.restrictTo = (...roles)=>{
 exports.forgotPassword = catchAsync(async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-        return next(new AppError('There is no user with email address.', 404));
+        return next(new AppError('لا يوجد مستخدم بهذا البريد الإلكتروني.', 404));
     }
 
     const resetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
     const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
-    const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+    const message = `هل نسيت كلمة المرور؟ أرسل طلب PATCH مع كلمة مرور جديدة إلى: ${resetURL}.\nإذا لم تطلب إعادة تعيين كلمة المرور، فتجاهل هذه الرسالة.`;
 
     try {
         await sendEmail({
             email: user.email,
-            subject: 'Your password reset token (valid for 10 min)',
+            subject: 'رمز إعادة تعيين كلمة المرور (صالح لمدة 10 دقائق)',
             message
         });
 
         res.status(200).json({
             status: 'success',
-            message: 'Token sent to email!'
+            message: 'تم إرسال رمز إعادة تعيين كلمة المرور إلى بريدك الإلكتروني!'
         });
     } catch (err) {
         user.passwordResetToken = undefined;
         user.passwordResetExpires = undefined;
         await user.save({ validateBeforeSave: false });
 
-        return next(new AppError('There was an error sending the email. Try again later!'), 500);
+        return next(new AppError('حدث خطأ أثناء إرسال البريد الإلكتروني. حاول مرة أخرى لاحقًا!', 500));
     }
 });
 
@@ -293,7 +237,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     });
 
     if (!user) {
-        return next(new AppError('Token is invalid or has expired', 400));
+        return next(new AppError('الرمز غير صالح أو انتهت صلاحيته', 400));
     }
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm;
@@ -304,11 +248,12 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     createSendToken(user, 200, res);
 });
 
+// *** To update user password ***
 exports.updatePassword = catchAsync(async (req, res, next) => {
     const user = await User.findById(req.user.id).select('+password');
 
     if (!(await user.correctPassword(req.body.passwordConfirm, user.password))) {
-        return next(new AppError('Your current password is wrong.', 401));
+        return next(new AppError('كلمة المرور الحالية غير صحيحة.', 401));
     }
     user.password = req.body.password;
     user.passwordConfirm = req.body.password;

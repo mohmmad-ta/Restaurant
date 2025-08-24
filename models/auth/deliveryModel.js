@@ -6,12 +6,12 @@ const bcrypt = require('bcryptjs');
 const deliverySchema = new mongoose.Schema({
         name: {
             type: String,
-            required: [true, 'Please tell us your name!']
+            required: [true, 'يرجى إدخال اسمك']
         },
         userID: {
             type: String,
-            required: [true, 'Please provide your userID'],
-            unique: true,
+            required: [true, 'يرجى إدخال id المستخدم'],
+            unique: [true, 'رقم id مسجل مسبقًا'],
             lowercase: true,
         },
         role: {
@@ -21,23 +21,23 @@ const deliverySchema = new mongoose.Schema({
         },
         phone: {
             type: String,
-            required: true,
-            unique: true,
+            required: [true, 'يرجى إدخال رقم الهاتف'],
+            unique: [true, 'رقم الهاتف مسجل مسبقًا'],
         },
         password: {
             type: String,
-            required: [true, 'Please provide a password'],
-            minlength: 8,
+            required: [true, 'يرجى إدخال كلمة المرور'],
+            minlength: [8, 'كلمة المرور يجب ألا تقل عن 8 أحرف'],
             select: false
         },
         passwordConfirm: {
             type: String,
-            required: [true, 'Please confirm your password'],
+            required: [true, 'يرجى تأكيد كلمة المرور'],
             validate: {
-                validator: function(el) {
+                validator: function (el) {
                     return el === this.password;
                 },
-                message: 'Passwords are not the same!'
+                message: 'كلمتا المرور غير متطابقتين!'
             }
         },
         passwordChangedAt: Date,
@@ -56,8 +56,7 @@ const deliverySchema = new mongoose.Schema({
     {
         toJSON: { virtuals: true },
         toObject: { virtuals: true }
-    }
-)
+    });
 
 deliverySchema.pre('save',  async function (next) {
     if (!this.isModified('password')) return next();

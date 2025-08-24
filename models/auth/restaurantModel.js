@@ -5,16 +5,17 @@ const crypto = require("crypto");
 const restaurantSchema = new mongoose.Schema({
         name: {
             type: String,
-            required: [true, 'Please tell us your name!'],
+            required: [true, 'يرجى إدخال اسم المطعم'],
             unique: true,
             trim: true,
-            maxlength: [40, 'A tour name must have less or equal then 40 characters'],
-            minlength: [3, 'A tour name must have more or equal then 3 characters']
+            maxlength: [40, 'اسم المطعم يجب ألا يزيد عن 40 حرفًا'],
+            minlength: [3, 'اسم المطعم يجب ألا يقل عن 3 أحرف']
         },
         phone: {
             type: String,
             trim: true,
-            required: [true, 'Please tell us your phone number!'],
+            unique: [true, 'رقم الهاتف مسجل مسبقًا'],
+            required: [true, 'يرجى إدخال رقم الهاتف']
         },
         discount: {
             type: Number,
@@ -24,8 +25,8 @@ const restaurantSchema = new mongoose.Schema({
         ratingsAverage: {
             type: Number,
             default: 4.5,
-            min: [1, 'Rating must be above 1.0'],
-            max: [5, 'Rating must be below 5.0'],
+            min: [1, 'التقييم يجب أن يكون أكبر من 1.0'],
+            max: [5, 'التقييم يجب أن يكون أقل من 5.0'],
             set: val => Math.round(val * 10) / 10
         },
         image: {
@@ -48,18 +49,18 @@ const restaurantSchema = new mongoose.Schema({
         },
         password: {
             type: String,
-            required: [true, 'Please provide a password'],
-            minlength: 8,
+            required: [true, 'يرجى إدخال كلمة المرور'],
+            minlength: [8, 'كلمة المرور يجب ألا تقل عن 8 أحرف'],
             select: false
         },
         passwordConfirm: {
             type: String,
-            required: [true, 'Please confirm your password'],
+            required: [true, 'يرجى تأكيد كلمة المرور'],
             validate: {
-                validator: function(el) {
+                validator: function (el) {
                     return el === this.password;
                 },
-                message: 'Passwords are not the same!'
+                message: 'كلمتا المرور غير متطابقتين!'
             }
         },
         passwordChangedAt: Date,
@@ -69,8 +70,8 @@ const restaurantSchema = new mongoose.Schema({
     {
         toJSON: { virtuals: true },
         toObject: { virtuals: true }
-    }
-)
+    });
+
 
 
 restaurantSchema.pre(/^find/, function (next) {

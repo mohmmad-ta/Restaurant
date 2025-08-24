@@ -5,15 +5,15 @@ const mealSchema = new mongoose.Schema(
     {
         name: {
             type: String,
-            required: [true, 'A Meal must have a name'],
+            required: [true, 'يجب إدخال اسم الوجبة'],
             trim: true,
-            maxlength: [40, 'A Meal name must have less or equal then 40 characters'],
-            minlength: [3, 'A Meal name must have more or equal then 3 characters'],
+            maxlength: [40, 'اسم الوجبة يجب ألا يزيد عن 40 حرفًا'],
+            minlength: [3, 'اسم الوجبة يجب ألا يقل عن 3 أحرف'],
         },
         slug: String,
         price: {
             type: Number,
-            required: [true, 'A Meal must have a price']
+            required: [true, 'يجب إدخال سعر الوجبة']
         },
         description: {
             type: String,
@@ -21,7 +21,7 @@ const mealSchema = new mongoose.Schema(
         },
         image: {
             type: String,
-            required: [true, 'A Meal must have a image']
+            required: [true, 'يجب إدخال صورة للوجبة']
         },
         createdAt: {
             type: Date,
@@ -38,6 +38,7 @@ const mealSchema = new mongoose.Schema(
         toObject: { virtuals: true }
     }
 );
+
 
 // tourSchema.index({ price: 1 });
 mealSchema.index({ price: 1, ratingsAverage: -1 });

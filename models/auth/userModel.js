@@ -5,17 +5,17 @@ const crypto = require("crypto");
 const userSchema = new mongoose.Schema({
         name: {
             type: String,
-            required: [true, 'Please tell us your name!'],
-            unique: true,
+            required: [true, 'يرجى إدخال الاسم'],
+            unique: [true, 'هذا الاسم مستخدم مسبقًا'],
             trim: true,
-            maxlength: [40, 'A tour name must have less or equal then 40 characters'],
-            minlength: [3, 'A tour name must have more or equal then 3 characters']
+            maxlength: [40, 'الاسم يجب ألا يزيد عن 40 حرفًا'],
+            minlength: [3, 'الاسم يجب ألا يقل عن 3 أحرف']
         },
         phone: {
             type: String,
-            unique: true,
+            unique: [true, 'رقم الهاتف مستخدم مسبقًا'],
             trim: true,
-            required: [true, 'Please tell us your phone number!'],
+            required: [true, 'يرجى إدخال رقم الهاتف'],
         },
         role: {
             type: String,
@@ -52,18 +52,18 @@ const userSchema = new mongoose.Schema({
         },
         password: {
             type: String,
-            required: [true, 'Please provide a password'],
-            minlength: 6,
+            required: [true, 'يرجى إدخال كلمة المرور'],
+            minlength: [8, 'كلمة المرور يجب ألا تقل عن 8 أحرف'],
             select: false
         },
         passwordConfirm: {
             type: String,
-            required: [true, 'Please confirm your password'],
+            required: [true, 'يرجى تأكيد كلمة المرور'],
             validate: {
-                validator: function(el) {
+                validator: function (el) {
                     return el === this.password;
                 },
-                message: 'Passwords are not the same!'
+                message: 'كلمتا المرور غير متطابقتين!'
             }
         },
         passwordChangedAt: Date,
@@ -73,8 +73,8 @@ const userSchema = new mongoose.Schema({
     {
         toJSON: { virtuals: true },
         toObject: { virtuals: true }
-    }
-)
+    });
+
 
 
 userSchema.pre(/^find/, function (next) {
