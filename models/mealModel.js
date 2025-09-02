@@ -17,12 +17,24 @@ const mealSchema = new mongoose.Schema(
         },
         description: {
             type: String,
-            trim: true
+            trim: true,
+        },
+        category: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: [true, 'يجب إدخال الصنف'],
+            ref: "Category"
         },
         image: {
             type: String,
             required: [true, 'يجب إدخال صورة للوجبة']
         },
+        note: [
+            {
+                title: {
+                    type: String,
+                },
+            }
+        ],
         createdAt: {
             type: Date,
             default: Date.now(),
@@ -47,6 +59,15 @@ mealSchema.index({ slug: 1 });
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
 mealSchema.pre('save', function(next) {
     this.slug = slugify(this.name, { lower: true });
+    next();
+});
+
+mealSchema.pre(/^find/, function(next) {
+    this.populate({
+        path: 'category',
+        select: '-__v'
+    })
+
     next();
 });
 

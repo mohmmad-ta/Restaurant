@@ -36,7 +36,6 @@ const orderSchema = new mongoose.Schema(
         createdAt: {
             type: Date,
             default: Date.now(),
-            select: false
         },
         status: {
             type: String,
@@ -61,9 +60,12 @@ orderSchema.pre(/^find/, function(next) {
         select: '-__v -slug'
     }).populate({
         path: 'userId',
-        select: '-__v -role'
+        select: '-__v -location -role'
     }).populate({
         path: 'item.Id',
+        select: '-__v -role'
+    }).populate({
+        path: 'deliveryId',
         select: '-__v -role'
     });
 

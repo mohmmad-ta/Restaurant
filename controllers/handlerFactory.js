@@ -1,10 +1,21 @@
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const APIFeatures = require('./../utils/apiFeatures');
+const fs = require("fs");
+const path = require("path");
 
 exports.deleteOne = Model =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndDelete(req.params.id);
+      if (doc.image) {
+          const imageRelativePath = doc.image.split("/public/")[1];
+          const imagePath = path.join(__dirname, "..", "public", imageRelativePath);
+
+          if (fs.existsSync(imagePath)) {
+              fs.unlinkSync(imagePath);
+              console.log("Image deleted:", imagePath);
+          }
+      }
 
     if (!doc) {
       return next(new AppError('No document found with that ID', 404));

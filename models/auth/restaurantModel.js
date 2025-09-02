@@ -24,14 +24,18 @@ const restaurantSchema = new mongoose.Schema({
         },
         ratingsAverage: {
             type: Number,
-            default: 4.5,
+            default: 0,
             min: [1, 'التقييم يجب أن يكون أكبر من 1.0'],
             max: [5, 'التقييم يجب أن يكون أقل من 5.0'],
-            set: val => Math.round(val * 10) / 10
+            set: (val) => Math.round(val * 10) / 10, // round to 1 decimal
+        },
+        ratingsQuantity: {
+            type: Number,
+            default: 0,
         },
         image: {
             type: String,
-            default: 'http://localhost:7060/public/images/users/user.png'
+            default: 'https://restaurant.khaleeafashion.com/public/images/users/user.png'
         },
         role: {
             type: String,

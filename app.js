@@ -13,6 +13,8 @@ require('dotenv').config();
 const usersRouter = require('./routes/usersRouter');
 const mealsRouter = require('./routes/mealsRouter');
 const ordersRouter = require('./routes/ordersRouter');
+const reviewRoutes = require('./routes/reviewRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 
 const app = express();
 const api = process.env.API_URL
@@ -66,6 +68,8 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use(`${api}/auth`, usersRouter);
 app.use(`${api}/meal`, mealsRouter);
 app.use(`${api}/order`, ordersRouter);
+app.use(`${api}/review`, reviewRoutes);
+app.use(`${api}/category`, categoryRoutes);
 
 
 
