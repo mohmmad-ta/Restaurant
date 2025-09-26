@@ -9,6 +9,24 @@ const orderSchema = new mongoose.Schema(
                     ref: 'Meal',
                     required: [true, 'يرجى إدخال رقم الوجبة'],
                 },
+                notes: [
+                    {
+                        title: {
+                            type: String,
+                        },
+                    }
+                ],
+                tags: [
+                    {
+                        title: {
+                            type: String,
+                        },
+                        price: {
+                            type: Number,
+                            default: 0,
+                        },
+                    }
+                ],
                 count: {
                     type: Number,
                     required: [true, 'يرجى إدخال عدد الوجبات'],
@@ -39,7 +57,7 @@ const orderSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ['1', '2', '3', '4'],
+            enum: ['1', '2', '3', '4'], // 1=new, 2=accepted, 3=delivered, 4=cancelled
             default: '1'
         },
         totalPrice: {
@@ -53,7 +71,7 @@ const orderSchema = new mongoose.Schema(
     }
 );
 
-
+// Auto populate relations when finding
 orderSchema.pre(/^find/, function(next) {
     this.populate({
         path: 'restaurantId',
@@ -71,33 +89,41 @@ orderSchema.pre(/^find/, function(next) {
 
     next();
 });
+
+// Calculate total price before saving
 orderSchema.pre('save', async function (next) {
     if (!this.isModified('item')) return next();
+
     // Populate meals and restaurant to get price and discount
-
     await this.populate('item.Id');
-    await this.populate('restaurantId'); // Make sure it has discount info
+    await this.populate('restaurantId'); // For discount
 
-    console.log(this.restaurantId)
     let total = 0;
 
     for (const el of this.item) {
         if (el?.Id?.price) {
-            total += el.Id.price * el.count;
+            // Base meal price × count
+            let basePrice = el.Id.price * el.count;
+
+            // Tags price × count
+            let tagsPrice = 0;
+            if (el.tags && el.tags.length > 0) {
+                tagsPrice = el.tags.reduce((acc, tag) => acc + (tag.price || 0), 0) * el.count;
+            }
+
+            total += basePrice + tagsPrice;
         }
     }
 
+    // Apply restaurant discount if available
     let discount = this.restaurantId?.discount || 0;
-    discount = discount /100;
-    const discountAmount = (total * discount);
-    console.log('discountAmount', discountAmount, 'total', total, "discount", discount);
+    discount = discount / 100;
+    const discountAmount = total * discount;
 
     this.totalPrice = total - discountAmount;
 
     next();
 });
-
-
 
 const Order = mongoose.model('Order', orderSchema);
 

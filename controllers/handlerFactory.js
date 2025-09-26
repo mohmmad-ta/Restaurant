@@ -40,6 +40,7 @@ exports.updateOne = Model =>
 exports.createOne = Model =>
   catchAsync(async (req, res, next) => {
     req.body.user = req.user.id;
+    if (!req.body.restaurantId){req.body.restaurantId = req.user.id}
     const doc = await Model.create(req.body);
 
     res.status(201).json({status: 'success', data: doc});

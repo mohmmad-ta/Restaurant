@@ -6,6 +6,7 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const hpp = require('hpp');
+const qs = require('qs');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 require('dotenv').config();
@@ -38,7 +39,7 @@ app.use('/api', limiter);
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '15kb' }));
 
-
+app.set('query parser', str => qs.parse(str));
 
 // Prevent parameter pollution
 app.use(

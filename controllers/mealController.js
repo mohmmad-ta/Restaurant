@@ -39,22 +39,8 @@ exports.getAllRestaurant = factory.getAll(Restaurant);
 exports.getMeal = factory.getOne(Meal);
 exports.updateMeal = factory.updateOne(Meal);
 exports.deleteMeal = factory.deleteOne(Meal);
+exports.createMeal = factory.createOne(Meal);
 
-exports.createMeal = catchAsync(async (req, res, next)=>{
-    const meal = await Meal.create({
-        name: req.body.name,
-        price: req.body.price,
-        description: req.body.description,
-        image: req.body.image,
-        restaurantId: req.user.id,
-    });
-    res.status(200).json({
-        status: 'success',
-        data: {
-            meal: meal
-        }
-    });
-})
 
 exports.getAllMyMeals = async (req, res, next) => {
     const data = await Restaurant.findById(req.user.id).populate('meal');

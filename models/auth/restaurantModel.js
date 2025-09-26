@@ -20,11 +20,12 @@ const restaurantSchema = new mongoose.Schema({
         discount: {
             type: Number,
             trim: true,
+            enum: [0, 10, 20, 30, 40, 50],
             default: 0
         },
         ratingsAverage: {
             type: Number,
-            default: 0,
+            default: 1,
             min: [1, 'التقييم يجب أن يكون أكبر من 1.0'],
             max: [5, 'التقييم يجب أن يكون أقل من 5.0'],
             set: (val) => Math.round(val * 10) / 10, // round to 1 decimal

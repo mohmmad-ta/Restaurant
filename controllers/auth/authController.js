@@ -43,7 +43,7 @@ const createSendToken = (user, statusCode, res) => {
 // *** To create new admin ***
 exports.signupAdmin = catchAsync(async (req, res, next)=>{
     const user = await Admin.create({
-        userID: 'mohammed',
+        userID: '12345678',
         password: '12345678',
         passwordConfirm: '12345678',
     });

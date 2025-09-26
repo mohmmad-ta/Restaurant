@@ -9,11 +9,13 @@ const Restaurant = require('./../models/auth/restaurantModel');
 const router = Router();
 
 
+
 // user Controller
 router.get('/user/myAllOrders', protect(User), restrictTo('user'), getAllMyOrder('userId'));
 router.post('/user/createOrder', protect(User), restrictTo('user'), createOrder);
 
 // Restaurant Controller
+router.get('/restaurant/myAllOrders', protect(Restaurant), restrictTo('restaurant'), getAllMyOrder('restaurantId'));
 router.get('/restaurant/myAllOrders', protect(Restaurant), restrictTo('restaurant'), getAllMyOrder('restaurantId'));
 router.get('/restaurant/getOrderStatus/:id', protect(Restaurant), restrictTo('restaurant'), getOrderStatus('restaurantId'));
 router.patch('/restaurant/changStatus', protect(Restaurant), restrictTo('restaurant'), changStatus('restaurantId'));

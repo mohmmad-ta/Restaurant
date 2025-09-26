@@ -4,12 +4,32 @@ class APIFeatures {
         this.queryString = queryString;
     }
 
+    // filter() {
+    //     const queryObj = { ...this.queryString };
+    //     const excludedFields = ['name', 'fields', 'page', 'limit', 'sort'];
+    //     excludedFields.forEach(el => delete queryObj[el]);
+    //
+    //     this.query = this.query.find(queryObj); // ✅ fix here
+    //     return this;
+    // }
     filter() {
         const queryObj = { ...this.queryString };
         const excludedFields = ['name', 'fields', 'page', 'limit', 'sort'];
         excludedFields.forEach(el => delete queryObj[el]);
 
-        this.query = this.query.find(queryObj); // ✅ fix here
+        // Convert operators to MongoDB syntax
+        let queryStr = JSON.stringify(queryObj);
+        queryStr = queryStr.replace(/\b(gte|gt|lte|lt|ne)\b/g, match => `$${match}`);
+
+        // Convert number-like strings to numbers
+        const parsedQuery = JSON.parse(queryStr, (key, value) => {
+            if (typeof value === 'string' && !isNaN(value)) {
+                return Number(value);
+            }
+            return value;
+        });
+
+        this.query = this.query.find(parsedQuery);
         return this;
     }
 

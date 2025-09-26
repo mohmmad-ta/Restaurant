@@ -20,7 +20,7 @@ const mealSchema = new mongoose.Schema(
             trim: true,
         },
         category: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: mongoose.Schema.ObjectId,
             required: [true, 'يجب إدخال الصنف'],
             ref: "Category"
         },
@@ -28,10 +28,21 @@ const mealSchema = new mongoose.Schema(
             type: String,
             required: [true, 'يجب إدخال صورة للوجبة']
         },
-        note: [
+        notes: [
             {
                 title: {
                     type: String,
+                },
+            }
+        ],
+        tags: [
+            {
+                title: {
+                    type: String,
+                },
+                price: {
+                    type: Number,
+                    default: 0,
                 },
             }
         ],
@@ -42,7 +53,8 @@ const mealSchema = new mongoose.Schema(
         },
         restaurantId: {
             type: mongoose.Schema.ObjectId,
-            ref: 'Restaurant'
+            ref: 'Restaurant',
+            required: [true, 'يجب إدخال المطعم']
         },
     },
     {
@@ -65,7 +77,7 @@ mealSchema.pre('save', function(next) {
 mealSchema.pre(/^find/, function(next) {
     this.populate({
         path: 'category',
-        select: '-__v'
+        select: '-__v -createdAt -updatedAt'
     })
 
     next();

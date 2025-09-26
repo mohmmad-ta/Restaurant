@@ -68,6 +68,8 @@ exports.changStatus = (id) => async (req, res, next) => {
     if (id === "deliveryId" && req.body.lastState === "2") {
         access = 'restaurantId';
         idParams = req.user.restaurantId.toHexString();
+    }else if (id === "restaurantId" && req.body.lastState === "2"){
+        return res.status(404).json({ status: 'fail', message: 'Order not found' });
     }
 
     const filter = { [access]: idParams, _id: req.body.id };
