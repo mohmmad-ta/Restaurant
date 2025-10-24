@@ -20,7 +20,7 @@ const restaurantSchema = new mongoose.Schema({
         discount: {
             type: Number,
             trim: true,
-            enum: [0, 10, 20, 30, 40, 50],
+            enum: [0, 10, 15, 20, 25, 30, 35, 40, 45, 50],
             default: 0
         },
         ratingsAverage: {

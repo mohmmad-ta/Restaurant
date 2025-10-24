@@ -54,7 +54,6 @@ exports.getOne = Model =>
 
 exports.getAll = Model =>
   catchAsync(async (req, res, next) => {
-      console.log("🔍 Final Query Params:", req);
 
       let filter = {};
     if (req.params.productId) filter = { product: req.params.productId };
